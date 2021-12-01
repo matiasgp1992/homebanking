@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHBB Transferencia</title>
+    <link rel="stylesheet" href="./styles/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="shortcut icon" href="./assets/logo-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
+<body>
+    <div id="app" v-cloak>
+        <header class="bg-light">
+            <div class="container">
+                <div class="row d-flex align-items-center">
+                    <div class="col d-flex align-items-center col-lg-2">
+                        <img src="./assets/logo-removebg-preview.png" alt="">
+                    </div>
+                    <div class="d-none d-lg-block col-5 col-lg-5 p-0 d-flex justify-content-center align-items-center ">
+                        <h2 class="m-0 text-center">Mindhub Brothers Bank</h2>
+                    </div>
+                    <div class="col col-md-7 col-lg-5">
+                        <ul class="nav justify-content-end bg-light">
+                            <li class="nav-item d-none d-md-block">
+                              <a class="nav-link active" aria-current="page" href="./misGestiones.html">Mis gestiones</a>
+                            </li>
+                            <li class="nav-item d-none d-md-block">
+                              <a class="nav-link" href="./AtCliente.html">Atención al Cliente</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" href="" @click="logOut">Salir</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <nav class="navbar navbar-expand-md navbar-light bg-light">
+                        <div class="container-fluid">
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                                <div class="navbar-nav">
+                                    
+                                    <a class="nav-link" href="./accounts.html">Cuentas</a>
+                                    <a class="nav-link" href="./cards.html">Tarjetas</a>
+                                    <a class="nav-link" href="./inversiones.html">Inversiones</a>
+                                    <a class="nav-link" href="./loan-application.html">Prestamos</a>
+                                    <a class="nav-link active" href="#">Seguros</a>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-8 col-lg-9">
+                        <div class="container text-center">
+                            <div class="row">
+                                <div class="card animate__animated animate__zoomIn">
+                                    <h5 class="pt-3">Nueva Transferencia:</h5>
+                                    <form class="pt-0">
+                                        <div class="">
+                                            <div>
+                                                <label for="fromAccount" class="pe-2">Cuenta de Origen: </label>
+                                                <select name="fromAccount" id="fromAccount" v-model="fromAccount">
+                                                    <option v-for="acc in client.accounts" :value="acc.number">{{acc.number}} ${{acc.balance}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="pt-2">
+                                                <label for="reciever" class="pe-2">Tipo de cuenta: </label>
+                                                <select name="reciever" id="reciever" v-model="owner" @change="resetToAccount">
+                                                    <option value="" disabled>- Select -</option>
+                                                    <option value="own">Propia</option>
+                                                    <option value="third">Terceros</option>
+                                                </select>
+                                            </div>
+                                            <div class="pt-2">
+                                                <label for="toAccount" class="pe-2">Cuenta destino: </label>
+                                                <select v-if="owner == 'own'" name="toAccount" v-model="toAccount" >
+                                                    <option v-for="acc in cuentaDisponible()" :value="acc.number">
+                                                        {{acc.number}}</option>
+                                                </select>
+                                                <div v-if="owner == 'third'">
+                                                    <input type="text" name="toAccount" maxlength="11" size="11" v-model="toAccount" placeholder="Ej.: VIN123">
+                                                </div>
+                                                <div v-if="owner == ''">
+                                                    <input type="number" name="toAccount" maxlength="11" size="11" v-model="toAccount" placeholder="Seleccione un destinatario" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="pt-2">
+                                                <label for="transferAmount">Suma a Transferir: </label>
+                                                <div>
+                                                    <input type="number" name="transferAmount" id="transferAmount" maxlength="4"
+                                                        size="11" v-model="transferAmount">
+                                                </div>
+                                            </div>
+                                            <div class="pt-2">
+                                                <label for="transferDesc">Descripción: </label>
+                                                <div>
+                                                    <input type="text" name="transferDesc" id="transferDesc" maxlength="20" size="20"
+                                                        v-model="transferDesc">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pt-3 d-flex justify-content-around">
+                                            <button class="btn btn-danger" type="reset" id="reset">Cancelar</button>
+                                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">Confirmar</button>
+                                        </div>
+                                    </form>
+                                    
+                                </div>
+                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >    
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <h5 class="modal-title" id="exampleModalLabel">Confirmar Transferencia</h5>
+                                            <div class="modal-body d-flex flex-direction-column justify-content-evenly">
+                                                <div>
+                                                    <h6>Cuenta de Origen: {{fromAccount}}</h6>
+                                                    <h6>Cuenta destino: {{toAccount}}</h6>
+                                                    <h6>Suma de la Transferencia: {{transferAmount}}</h6>
+                                                    <h6>Descripción: {{transferDesc}}</h6>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                                    @click="resetTransfer">Cancel</button>
+                                                <button type="submit" class="btn btn-primary" @click="transferPost"
+                                                    data-bs-dismiss="modal" :disabled="btnDes" data-bs-toggle="modal" data-bs-target="#exampleModal1">Confirm</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="exampleModalLabel1"></h5>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          {{mensaje}}
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>  
+                    </div>                  
+                </div> 
+            </div>
+        </main>
+        <footer class="bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-2 d-flex justify-content-center align-items-center">
+                        <img src="./assets/logo-removebg-preview.png" alt="">
+                    </div>
+                    <div class="col-12 col-md-8 d-flex justify-content-evenly align-items-center text-center">
+                        <a href="./avisosLegales.html">Avisos Legales</a>
+                        <a href="./avisosNav.html">Aviso Navegador</a>
+                        <a href="./webCorporativa.html">Web Corporativa</a>
+                    </div>
+                    <div class="col-12 col-md-2 d-flex justify-content-around align-items-center">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col d-flex justify-content-center align-items-center">
+                        <h6>© 2021 Mindhub Brothers Bank</h6>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://kit.fontawesome.com/58d99c8dac.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <script src="./script/transfer.js"></script>
+</body>
+</html>
